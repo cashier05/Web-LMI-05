@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>CASHIER LMI-05</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="https://pdftourl.net/images/1795429037987-6c83fe49-00ce-43a4-bdeb-467a5673e0a4.png" type="image/png">
+    <link rel="shortcut icon" href="https://pdftourl.net/images/1795429037987-6c83fe49-00ce-43a4-bdeb-467a5673e0a4.png">
+
+    <!-- PWA / iOS Safari install support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Cashier LMI-05">
+    <meta name="theme-color" content="#0f1117">
+    <meta name="description" content="Cashier LMI-05 - Report Unusualy, SOS, Price Change, Search Produk">
+    <link rel="apple-touch-icon" href="https://pdftourl.net/images/1795429037987-6c83fe49-00ce-43a4-bdeb-467a5673e0a4.png">
+    <link rel="manifest" href="manifest.json">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --nav-height: 68px;
+            --bg: #0f1117;
+            --nav-bg: #1a1d27;
+            --nav-border: #2a2d3a;
+            --accent: #00c896;
+            --accent-glow: rgba(0, 200, 150, 0.25);
+            --text: #e0e0e6;
+            --text-muted: #6b6f82;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg);
+            overflow: hidden;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            padding-bottom: var(--nav-height);
+        }
+
+        iframe {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #fff;
+            transition: opacity 0.25s ease;
+        }
+
+        iframe.loading {
+            opacity: 0.4;
+        }
+
+        .loader-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            width: 0;
+            background: linear-gradient(90deg, var(--accent), #00e6a8);
+            z-index: 1000;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+
+        .loader-bar.active {
+            width: 70%;
+            transition: width 0.6s ease;
+        }
+
+        .loader-bar.done {
+            width: 100%;
+            transition: width 0.2s ease;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: var(--nav-height);
+            background: var(--nav-bg);
+            border-top: 1px solid var(--nav-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            z-index: 999;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            flex: 1;
+            height: 100%;
+            cursor: pointer;
+            position: relative;
+            text-decoration: none;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            transition: transform 0.15s ease;
+        }
+
+        .nav-item:active {
+            transform: scale(0.92);
+        }
+
+        .nav-item .icon-wrap {
+            width: 46px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+
+        .nav-item .icon-wrap i {
+            font-size: 21px;
+            color: var(--text-muted);
+            transition: color 0.25s ease, transform 0.25s ease;
+        }
+
+        .nav-item .label {
+            font-size: 9.5px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            color: var(--text-muted);
+            transition: color 0.25s ease;
+            line-height: 1;
+        }
+
+        .nav-item.active .icon-wrap {
+            background: var(--accent-glow);
+        }
+
+        .nav-item.active .icon-wrap i {
+            color: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        .nav-item.active .label {
+            color: var(--accent);
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 28px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 0 10px var(--accent-glow);
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { width: 0; opacity: 0; }
+            to { width: 28px; opacity: 1; }
+        }
+
+        .nav-item .badge {
+            position: absolute;
+            top: 2px;
+            right: calc(50% - 24px);
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            border: 2px solid var(--nav-bg);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); }
+            50% { box-shadow: 0 0 0 4px transparent; }
+        }
+
+        .nav-item.active .badge {
+            display: none;
+        }
+
+        .page-toast {
+            position: fixed;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-60px);
+            background: var(--nav-bg);
+            border: 1px solid var(--nav-border);
+            color: var(--text);
+            padding: 8px 20px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 998;
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            white-space: nowrap;
+        }
+
+        .page-toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .page-toast i {
+            margin-right: 6px;
+            color: var(--accent);
+        }
+
+        /* PWA install button */
+        .install-btn {
+            position: fixed;
+            bottom: calc(var(--nav-height) + 14px);
+            right: 14px;
+            background: var(--accent);
+            color: #0f1117;
+            border: none;
+            padding: 11px 18px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            gap: 7px;
+            z-index: 1001;
+            box-shadow: 0 6px 24px var(--accent-glow);
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+            font-family: inherit;
+        }
+
+        .install-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px var(--accent-glow);
+        }
+
+        .install-btn:active {
+            transform: scale(0.95);
+        }
+
+        .install-btn i {
+            font-size: 14px;
+        }
+
+        @media (min-width: 768px) {
+            :root {
+                --nav-height: 76px;
+            }
+            .nav-item .icon-wrap {
+                width: 52px;
+                height: 40px;
+            }
+            .nav-item .icon-wrap i {
+                font-size: 24px;
+            }
+            .nav-item .label {
+                font-size: 10.5px;
+            }
+            .nav-item .badge {
+                right: calc(50% - 27px);
+            }
+        }
+
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .bottom-nav {
+                padding-bottom: env(safe-area-inset-bottom);
+                height: calc(var(--nav-height) + env(safe-area-inset-bottom));
+            }
+            .iframe-container {
+                padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="loader-bar" id="loaderBar"></div>
+
+    <div class="page-toast" id="pageToast">
+        <i class="fa-solid fa-file-circle-exclamation"></i>
+        <span id="toastText">Report</span>
+    </div>
+
+    <button class="install-btn" id="installBtn">
+        <i class="fa-solid fa-download"></i>
+        <span>Install App</span>
+    </button>
+
+    <div class="iframe-container">
+        <iframe
+            id="app"
+            src="https://cashier05.github.io/REPORT-UNUSUALY/"
+            allow="fullscreen; camera; microphone; display-capture; geolocation">
+        </iframe>
+    </div>
+
+    <nav class="bottom-nav" id="bottomNav">
+        <div class="nav-item active" data-url="https://cashier05.github.io/REPORT-UNUSUALY/" data-label="Report" data-icon="fa-solid fa-file-circle-exclamation">
+            <span class="badge"></span>
+            <div class="icon-wrap">
+                <i class="fa-solid fa-file-circle-exclamation"></i>
+            </div>
+            <span class="label">Report</span>
+        </div>
+
+        <div class="nav-item" data-url="https://cashier05.github.io/SOS-Retekess/" data-label="SOS" data-icon="fa-solid fa-tower-broadcast">
+            <div class="icon-wrap">
+                <i class="fa-solid fa-tower-broadcast"></i>
+            </div>
+            <span class="label">SOS</span>
+        </div>
+
+        <div class="nav-item" data-url="https://cashier05.github.io/Price-Change-App/" data-label="Price Change" data-icon="fa-solid fa-tags">
+            <div class="icon-wrap">
+                <i class="fa-solid fa-tags"></i>
+            </div>
+            <span class="label">Price</span>
+        </div>
+
+        <div class="nav-item" data-url="https://cashier05.github.io/Search-Produk/" data-label="Search Produk" data-icon="fa-solid fa-magnifying-glass">
+            <div class="icon-wrap">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <span class="label">Search</span>
+        </div>
+    </nav>
+
+    <script>
+        const iframe = document.getElementById('app');
+        const loaderBar = document.getElementById('loaderBar');
+        const pageToast = document.getElementById('pageToast');
+        const toastText = document.getElementById('toastText');
+        const navItems = document.querySelectorAll('.nav-item');
+        let toastTimer = null;
+
+        function showToast(label, iconClass) {
+            clearTimeout(toastTimer);
+            toastText.textContent = label;
+            pageToast.querySelector('i').className = iconClass;
+            pageToast.classList.add('show');
+            toastTimer = setTimeout(() => {
+                pageToast.classList.remove('show');
+            }, 1800);
+        }
+
+        function startLoading() {
+            loaderBar.className = 'loader-bar';
+            void loaderBar.offsetWidth;
+            loaderBar.classList.add('active');
+        }
+
+        function finishLoading() {
+            loaderBar.classList.remove('active');
+            loaderBar.classList.add('done');
+            setTimeout(() => {
+                loaderBar.className = 'loader-bar';
+            }, 400);
+        }
+
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const url = this.dataset.url;
+                const label = this.dataset.label;
+                const icon = this.dataset.icon;
+
+                if (this.classList.contains('active')) return;
+
+                navItems.forEach(n => n.classList.remove('active'));
+                this.classList.add('active');
+
+                showToast(label, icon);
+
+                iframe.classList.add('loading');
+                startLoading();
+
+                iframe.onload = function() {
+                    iframe.classList.remove('loading');
+                    finishLoading();
+                };
+
+                iframe.src = url;
+
+                setTimeout(() => {
+                    iframe.classList.remove('loading');
+                    finishLoading();
+                }, 4000);
+            });
+        });
+
+        window.addEventListener('popstate', function(e) {
+            if (iframe.src !== navItems[0].dataset.url) {
+                navItems.forEach(n => n.classList.remove('active'));
+                navItems[0].classList.add('active');
+                iframe.src = navItems[0].dataset.url;
+                showToast('Report', 'fa-solid fa-file-circle-exclamation');
+            }
+        });
+
+        history.replaceState({ page: 'report' }, '', '');
+
+        /* ===== PWA Service Worker Registration ===== */
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('sw.js').then(function(reg) {
+                    console.log('Service Worker registered:', reg.scope);
+                }).catch(function(err) {
+                    console.warn('Service Worker registration failed:', err);
+                });
+            });
+        }
+
+        /* ===== PWA Install Prompt (Android Chrome) ===== */
+        let deferredPrompt = null;
+        const installBtn = document.getElementById('installBtn');
+
+        window.addEventListener('beforeinstallprompt', function(e) {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'flex';
+        });
+
+        installBtn.addEventListener('click', async function() {
+            if (!deferredPrompt) {
+                showToast('Install', 'fa-solid fa-circle-info');
+                return;
+            }
+            deferredPrompt.prompt();
+            const choice = await deferredPrompt.userChoice;
+            if (choice.outcome === 'accepted') {
+                console.log('User accepted install');
+            }
+            deferredPrompt = null;
+            installBtn.style.display = 'none';
+        });
+
+        window.addEventListener('appinstalled', function() {
+            installBtn.style.display = 'none';
+            deferredPrompt = null;
+            console.log('App installed');
+        });
+    </script>
+</body>
+</html>
