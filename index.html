@@ -5,19 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>CASHIER LMI-05</title>
 
-    <!-- Favicon -->
+    <!-- Favicon Standar & Android -->
     <link rel="icon" href="https://pdftourl.net/images/1795429037987-6c83fe49-00ce-43a4-bdeb-467a5673e0a4.png" type="image/png">
     <link rel="shortcut icon" href="https://pdftourl.net/images/1795429037987-6c83fe49-00ce-43a4-bdeb-467a5673e0a4.png">
 
-    <!-- PWA / iOS Safari install support -->
+    <!-- Konfigurasi Khusus iPhone / iOS (Safari) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Cashier LMI-05">
-    <meta name="theme-color" content="#0f1117">
-    <meta name="description" content="Cashier LMI-05 - Report Unusualy, SOS, Price Change, Search Produk">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Web-cashier-LMI-05">
     <link rel="apple-touch-icon" href="https://pdftourl.net/images/1795429037987-6c83fe49-00ce-43a4-bdeb-467a5673e0a4.png">
-    <link rel="manifest" href="manifest.json">
+
+    <!-- Konfigurasi Warna Tema Browser Android -->
+    <meta name="theme-color" content="#ffffff">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- Placeholder Manifest PWA (Diisi otomatis oleh script di bawah) -->
+    <link rel="manifest" id="pwa-manifest">
+
+    <meta name="description" content="Cashier LMI-05 - Report Unusualy, SOS, Price Change, Search Produk">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
@@ -424,6 +429,37 @@
         });
 
         history.replaceState({ page: 'report' }, '', '');
+
+        /* ===== Dynamic PWA Manifest (mengisi placeholder #pwa-manifest) ===== */
+        (function() {
+            const FAV_ICON = 'https://pdftourl.net/images/1795429037987-6c83fe49-00ce-43a4-bdeb-467a5673e0a4.png';
+            const manifest = {
+                name: 'CASHIER LMI-05',
+                short_name: 'REPORT-UNUSUALLY',
+                description: 'Cashier LMI-05 - Report Unusualy, SOS, Price Change, Search Produk',
+                start_url: './index.html',
+                scope: './',
+                display: 'standalone',
+                orientation: 'portrait',
+                background_color: '#ffffff',
+                theme_color: '#ffffff',
+                lang: 'id',
+                categories: ['business', 'productivity'],
+                icons: [
+                    { src: FAV_ICON, sizes: '192x192', type: 'image/png', purpose: 'any' },
+                    { src: FAV_ICON, sizes: '512x512', type: 'image/png', purpose: 'any' },
+                    { src: FAV_ICON, sizes: 'any',    type: 'image/png', purpose: 'maskable' }
+                ]
+            };
+            try {
+                const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                document.getElementById('pwa-manifest').setAttribute('href', url);
+            } catch (e) {
+                console.warn('Manifest generation failed, falling back to manifest.json:', e);
+                document.getElementById('pwa-manifest').setAttribute('href', 'manifest.json');
+            }
+        })();
 
         /* ===== PWA Service Worker Registration ===== */
         if ('serviceWorker' in navigator) {
